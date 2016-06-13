@@ -280,7 +280,7 @@ func (p *putter) Close() (err error) {
 	// strip part count from end and '"' from front.
 	remoteMd5ofParts := strings.Split(p.ETag, "-")[0]
 	if len(remoteMd5ofParts) == 0 {
-		return fmt.Errorf("Nil ETag")
+		return fmt.Errorf("Unparseable ETag %+v", p)
 	}
 	remoteMd5ofParts = remoteMd5ofParts[1:len(remoteMd5ofParts)]
 	if calculatedMd5ofParts != remoteMd5ofParts {
