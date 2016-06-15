@@ -383,15 +383,13 @@ func (p *putter) retryRequest(method, urlStr string, body io.ReadSeeker, h http.
 
 		p.b.Sign(req)
 		resp, err = p.c.Client.Do(req)
-		if err == nil {
-			return
-		}
-		logger.debugPrintln(err)
-
-		// retry internal server errors after a short delay
-		if resp != nil && resp.StatusCode == 500 {
+		if err == nil && resp.StatusCode == 500 {
+			// retry internal server errors after a short delay
 			time.Sleep(time.Duration(math.Exp2(float64(i))) * 100 * time.Millisecond) // exponential back-off
-			continue
+		} else if err == nil {
+			return
+		} else {
+			logger.debugPrintln(err)
 		}
 
 		if body != nil {
