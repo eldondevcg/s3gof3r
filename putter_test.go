@@ -1,0 +1,43 @@
+package s3gof3r
+
+import (
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
+
+func TestPutterRetryRequest(t *testing.T) {
+	expectedTries := 3
+	actualTries := 0
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		actualTries++
+
+		_, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		if actualTries < expectedTries {
+			http.Error(w, "InternalError", http.StatusInternalServerError)
+		} else {
+			http.Error(w, "ok", http.StatusOK)
+		}
+	}))
+
+	w, err := b.PutWriter("test", nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, ok := w.(*putter)
+	if !ok {
+		t.Fatal("putter type cast failed")
+	}
+	_, err = p.retryRequest("POST", testServer.URL, nil, nil)
+	if err != nil {
+		t.Fatalf("Expected no error, got: %s", err.Error())
+	}
+	if actualTries != expectedTries {
+		t.Fatalf("Expected %d tries, got: %d", expectedTries, actualTries)
+	}
+}
