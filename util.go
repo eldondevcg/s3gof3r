@@ -77,11 +77,11 @@ func (e *RespError) Error() string {
 	)
 }
 
-func checkClose(c io.Closer, err error) {
+func checkClose(c io.Closer, err *error) {
 	if c != nil {
 		cerr := c.Close()
-		if err == nil {
-			err = cerr
+		if *err == nil {
+			*err = cerr
 		}
 	}
 
