@@ -58,7 +58,7 @@ func (cp *cpOpts) Execute(args []string) (err error) {
 	if err != nil {
 		return
 	}
-	defer checkClose(src, err)
+	defer checkClose(src, &err)
 
 	dst, err := func(dst string) (io.WriteCloser, error) {
 		if !strings.HasPrefix(strings.ToLower(dst), "s3") {
@@ -75,7 +75,7 @@ func (cp *cpOpts) Execute(args []string) (err error) {
 		return
 	}
 
-	defer checkClose(dst, err)
+	defer checkClose(dst, &err)
 	_, err = io.Copy(dst, src)
 	return
 }
